@@ -4,10 +4,17 @@ from math import e
 from math import pi
 import matplotlib.pyplot as plt
 
-
+# Input values
 pop_quantity = 20
 number_of_iterations = 30
+score = []
+all_scores = []
+quantity = []
+best_scores = []
+p = 0
 
+
+#function to convert list into binary
 def convert(list_bin):
     s = [str(i) for i in list_bin]
     binary = str("".join(s))
@@ -17,7 +24,7 @@ def convert(list_bin):
 def get_bin(x, n=0):
     return format(x, 'b').zfill(n)
 
-
+# Main class with the specimen and attributes
 class Specimen(object):
 
     def __init__(self):
@@ -40,14 +47,15 @@ class Specimen(object):
             score.chromo = b.chromo
         return score
 
+    #estimate value function - it calculates output for float values of each specimen
     @property
     def estimate(self):
         x = self.float_value
         estimate = round((e ** x * np.sin(10 * pi * x) + 1) / x, 3)
         return estimate
-
+    #mutation function - it mutates two random bits in specimens binary code
     @property
-    def mutuj(self):
+    def mutation(self):
         index = random.randint(0, 10)
         self.chromo[index] = (self.chromo[index]+1)%2
         if self.chromo[0] == 0:
@@ -65,6 +73,7 @@ class Specimen(object):
         self.float_value = round((self.convert / 1000) + self.sign + 0.5, 3)
         return self
 
+    #roulette selection function
     def roulette(self,y):
         s = []
         for i in range(0, pop_quantity):
@@ -83,6 +92,7 @@ class Specimen(object):
             else:
                 pass
 
+    #main crossover function after selection function this is activated. It produce child specimens out of two randomly selected parents
     def crossover(self):
         index = random.randint(0, 11)
         index1 = random.randint(0, pop_quantity-1)
@@ -100,13 +110,14 @@ class Specimen(object):
             self.float_value = round((self.convert / 1000) + self.sign + 0.5, 3)
             return self
 
-
+# Population class for Specimen object manipulations
 class Population(object):
 
     def __init__(self):
         self.specimens = [Specimen() for i in range(0, pop_quantity)]
 
-    def selekcja(self):
+    #main selection function it runs the other function in proper way
+    def selection(self):
         self.specimens.sort(key=lambda Osobnik: Osobnik.estimate, reverse=True)
         print("ruletka:")
         for i in range(0,pop_quantity):
@@ -117,11 +128,11 @@ class Population(object):
             self.specimens[i] = self.specimens[i].crossover()
             print(i,self.specimens[i].chromo, self.specimens[i].float_value, self.specimens[i].estimate)
 
+        # mutates are 10% of the whole population
         mutates = round(pop_quantity*0.1)
-        print(mutates)
         for i in range(1,mutates):
             index = random.randint(0, pop_quantity-1)
-            self.specimens[index] = self.specimens[index].mutuj
+            self.specimens[index] = self.specimens[index].mutation
             print("mutanty:",self.specimens[i].chromo, self.specimens[i].float_value,self.specimens[i].estimate)
             i+=1
         self.specimens.sort(key=lambda Osobnik: Osobnik.estimate, reverse=True)
@@ -129,12 +140,9 @@ class Population(object):
         print(self.specimens[0].chromo,self.specimens[0].float_value,self.specimens[0].estimate)
         print("-------------------------------------------------------")
 
+
+# Main activation
 y = Population()
-score = []
-all_scores = []
-quantity = []
-best_scores = []
-p = 0
 for i in range(0, number_of_iterations):
     print('iteracja nr: {}'.format(i + 1))
     for j in y.specimens:
@@ -151,8 +159,7 @@ for i in range(0, number_of_iterations):
             best_scores.append([max(score)])
             p = 0
             score = []
-    y.selekcja()
-
+    y.selection()
 r = 0
 for i in all_scores:
     r=r+1
