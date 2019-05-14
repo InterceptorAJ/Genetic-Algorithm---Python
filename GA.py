@@ -5,12 +5,14 @@ from math import pi
 import matplotlib.pyplot as plt
 
 # Input values
-pop_quantity = 20
-number_of_iterations = 30
+pop_quantity = 10
+number_of_iterations = 100
+mutates = round(pop_quantity*0.5)
 score = []
 all_scores = []
 quantity = []
 best_scores = []
+x_list = []
 p = 0
 
 
@@ -28,23 +30,20 @@ def get_bin(x, n=0):
 class Specimen(object):
 
     def __init__(self):
-            self.chromo = [random.randint(0, 1) for i in range(0, 11)]
-            if self.chromo[0] == 0:
-                self.sign = 0
-            elif self.chromo[0] == 1:
-                self.sign = 1
-            self.chromo_list = self.chromo[1:11]
-            self.convert = int(convert(self.chromo_list),2)
-            self.float_value = round((self.convert/1000)+self.sign+0.5,3)
-            self.prob = 0
+        self.chromo = [random.randint(0, 1) for i in range(0, 11)]
+        if self.chromo[0] == 0:
+            self.sign = 0
+        elif self.chromo[0] == 1:
+            self.sign = 1
+        self.chromo_list = self.chromo[1:11]
+        self.convert = int(convert(self.chromo_list),2)
+        self.float_value = round((self.convert/1000)+self.sign+0.5,3)
+        self.prob = 0
 
     def __add__(self, b):
         score = Specimen()
         new = round(random.uniform(0.499,2.501),3)
-        if new > score.estimate():
-            score.chromo = self.chromo
-        else:
-            score.chromo = b.chromo
+        score.chromo = new.chromo
         return score
 
     #estimate value function - it calculates output for float values of each specimen
@@ -54,7 +53,8 @@ class Specimen(object):
         estimate = round((e ** x * np.sin(10 * pi * x) + 1) / x, 3)
         return estimate
     #mutation function - it mutates two random bits in specimens binary code
-    @property
+
+
     def mutation(self):
         index = random.randint(0, 10)
         self.chromo[index] = (self.chromo[index]+1)%2
@@ -119,26 +119,27 @@ class Population(object):
     #main selection function it runs the other function in proper way
     def selection(self):
         self.specimens.sort(key=lambda Osobnik: Osobnik.estimate, reverse=True)
-        print("ruletka:")
-        for i in range(0,pop_quantity):
+        # print("ruletka:")
+        i = 2
+        for i in range(2,pop_quantity):
             self.specimens[i].roulette(y)
-            print(i,self.specimens[i].chromo,self.specimens[i].float_value,self.specimens[i].estimate)
-        print("dziedziczenie")
-        for i in range(0,pop_quantity):
+        #     print(i,self.specimens[i].chromo,self.specimens[i].float_value,self.specimens[i].estimate)
+        # print("dziedziczenie")
+        for i in range(2,pop_quantity):
             self.specimens[i] = self.specimens[i].crossover()
-            print(i,self.specimens[i].chromo, self.specimens[i].float_value, self.specimens[i].estimate)
+        #     print(i,self.specimens[i].chromo, self.specimens[i].float_value, self.specimens[i].estimate)
 
         # mutates are 10% of the whole population
-        mutates = round(pop_quantity*0.1)
+
         for i in range(1,mutates):
-            index = random.randint(0, pop_quantity-1)
-            self.specimens[index] = self.specimens[index].mutation
-            print("mutanty:",self.specimens[i].chromo, self.specimens[i].float_value,self.specimens[i].estimate)
+            index = random.randint(2, pop_quantity-1)
+            self.specimens[index] = self.specimens[index].mutation()
+            print("osobniki zmutowane:",self.specimens[i].chromo, self.specimens[i].float_value,self.specimens[i].estimate)
             i+=1
         self.specimens.sort(key=lambda Osobnik: Osobnik.estimate, reverse=True)
-        print("Najlepszy osobnik w tej iteracji: ")
-        print(self.specimens[0].chromo,self.specimens[0].float_value,self.specimens[0].estimate)
-        print("-------------------------------------------------------")
+        # print("Najlepszy osobnik w tej iteracji: ")
+        # print(self.specimens[0].chromo,self.specimens[0].float_value,self.specimens[0].estimate)
+        # print("-------------------------------------------------------")
 
 
 # Main activation
@@ -150,11 +151,12 @@ for i in range(0, number_of_iterations):
         x = y.specimens[p-1].float_value
         score.append(q)
         all_scores.append(q)
+        x_list.append(x)
         y.specimens.sort(key=lambda Osobnik: Osobnik.estimate, reverse=True)
-        print(p,y.specimens[p].chromo,y.specimens[p].float_value,y.specimens[p].estimate)
+        print(p+1,y.specimens[p].chromo,y.specimens[p].float_value,y.specimens[p].estimate)
         p+=1
         if p == pop_quantity:
-            print(f'Najlepszy wynik w generacji nr: ',{i + 1}," : ",{max(score)})
+            # print(f'Najlepszy wynik w generacji nr: ',{i + 1}," : ",{max(score)})
             best_scores.append(i)
             best_scores.append([max(score)])
             p = 0
@@ -167,7 +169,8 @@ for i in all_scores:
 a = max(all_scores)
 b = all_scores.index(max(all_scores))
 c = round(b/pop_quantity)+1
-print("Najlepszy wynik: ",a," W Osobniku nr: ",b,"Generacja nr: ",c)
+d = x_list[b]
+print("Najlepszy wynik: ",a,"Dla x = ",d," W Osobniku nr: ",b,"Generacja nr: ",c)
 plt.plot(quantity,all_scores)
 plt.ylabel('Function output: f(x) value')
 plt.show()
