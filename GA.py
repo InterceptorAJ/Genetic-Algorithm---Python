@@ -5,9 +5,16 @@ from math import pi
 import matplotlib.pyplot as plt
 
 # Input values
-pop_quantity = 10
+# quantity per generation
+pop_quantity = 20
+# number of generations
 number_of_iterations = 100
-mutates = round(pop_quantity*0.5)
+# number of mutation 0.10 mean 10% per population
+mutates = round(pop_quantity*0.20)
+# number of best specimens that can pass to next generation. They will pass roulette and mutation.
+specimens_pass = 2
+
+
 score = []
 all_scores = []
 quantity = []
@@ -30,6 +37,9 @@ def get_bin(x, n=0):
 class Specimen(object):
 
     def __init__(self):
+        #  modified "very weak" starting specimens
+        # self.chromo = [1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0]
+        # normal starting specimens
         self.chromo = [random.randint(0, 1) for i in range(0, 11)]
         if self.chromo[0] == 0:
             self.sign = 0
@@ -42,7 +52,10 @@ class Specimen(object):
 
     def __add__(self, b):
         score = Specimen()
-        new = round(random.uniform(0.499,2.501),3)
+        # modified "very weak" starting specimens
+        # new = round(random.uniform(2.350,2.380),3)
+        # normal starting specimens
+        new = round(random.uniform(0.499, 2.501), 3)
         score.chromo = new.chromo
         return score
 
@@ -120,12 +133,12 @@ class Population(object):
     def selection(self):
         self.specimens.sort(key=lambda Osobnik: Osobnik.estimate, reverse=True)
         # print("ruletka:")
-        i = 2
-        for i in range(2,pop_quantity):
+        i = specimens_pass
+        for i in range(specimens_pass,pop_quantity):
             self.specimens[i].roulette(y)
         #     print(i,self.specimens[i].chromo,self.specimens[i].float_value,self.specimens[i].estimate)
         # print("dziedziczenie")
-        for i in range(2,pop_quantity):
+        for i in range(specimens_pass,pop_quantity):
             self.specimens[i] = self.specimens[i].crossover()
         #     print(i,self.specimens[i].chromo, self.specimens[i].float_value, self.specimens[i].estimate)
 
@@ -134,7 +147,7 @@ class Population(object):
         for i in range(1,mutates):
             index = random.randint(2, pop_quantity-1)
             self.specimens[index] = self.specimens[index].mutation()
-            print("osobniki zmutowane:",self.specimens[i].chromo, self.specimens[i].float_value,self.specimens[i].estimate)
+            # print("osobniki zmutowane:",self.specimens[i].chromo, self.specimens[i].float_value,self.specimens[i].estimate)
             i+=1
         self.specimens.sort(key=lambda Osobnik: Osobnik.estimate, reverse=True)
         # print("Najlepszy osobnik w tej iteracji: ")
