@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # Input values
 pop_quantity = 10
 number_of_iterations = 100
-mutates = round(pop_quantity*0.5)
+mutates = round(pop_quantity*0.25)
 score = []
 all_scores = []
 quantity = []
